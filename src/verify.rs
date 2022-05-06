@@ -228,8 +228,9 @@ fn prepare_self_signed<'a, 'b>(presented_certs: &'a [Certificate])
 }
 
 fn try_now() -> Result<webpki::Time, TLSError> {
-    webpki::Time::try_from(std::time::SystemTime::now())
-        .map_err( |_ | TLSError::FailedToGetCurrentTime)
+    let mut time = optee_utee::Time::new();
+    time.system_time();
+    Ok(webpki::Time::from_seconds_since_unix_epoch(time.seconds as u64))
 }
 
 /// A `ClientCertVerifier` that will ensure that every client provides a trusted
