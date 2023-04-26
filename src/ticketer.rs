@@ -15,6 +15,14 @@ use ring::aead;
 
 /// The timebase for expiring and rolling tickets and ticketing
 /// keys.  This is UNIX wall time in seconds.
+#[cfg(not(target_os="optee"))]
+pub fn timebase() -> u64 {
+    time::SystemTime::now()
+        .duration_since(time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs()
+}
+#[cfg(target_os="optee")]
 pub fn timebase() -> u64 {
     let mut time = optee_utee::Time::new();
     time.system_time();

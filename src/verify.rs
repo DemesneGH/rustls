@@ -227,6 +227,12 @@ fn prepare_self_signed<'a, 'b>(presented_certs: &'a [Certificate])
     Ok(cert)
 }
 
+#[cfg(not(target_os="optee"))]
+fn try_now() -> Result<webpki::Time, TLSError> {
+    webpki::Time::try_from(std::time::SystemTime::now())
+        .map_err( |_ | TLSError::FailedToGetCurrentTime)
+}
+#[cfg(target_os="optee")]
 fn try_now() -> Result<webpki::Time, TLSError> {
     let mut time = optee_utee::Time::new();
     time.system_time();
